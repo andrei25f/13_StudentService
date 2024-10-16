@@ -15,6 +15,6 @@ public interface StudentService {
     StudentAddDto updateStudent(Long id, StudentUpdateDto studentUpdateDto);
     Boolean addScore(Long id, ScoreDto scoreDto);
     List<StudentDto> findStudentsByName(String name);
-    Integer getStudentsQuantityByNames(Set<String> names);
+    Long getStudentsQuantityByNames(Set<String> names);
     List<StudentDto> findStudentsByExamMinScore(String exam, Integer minScore);
 }
