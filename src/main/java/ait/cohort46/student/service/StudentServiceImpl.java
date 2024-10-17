@@ -8,6 +8,7 @@ import ait.cohort46.student.dto.StudentUpdateDto;
 import ait.cohort46.student.dto.exceptions.StudentNotFoundException;
 import ait.cohort46.student.model.Student;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -21,13 +22,14 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public Boolean addStudent(StudentAddDto studentAddDto) {
         if (studentRepository.existsById(studentAddDto.getId())) {
             return false;
         }
-        Student student = new Student(studentAddDto.getId(), studentAddDto.getName(), studentAddDto.getPassword());
+        Student student = modelMapper.map(studentAddDto, Student.class);
         studentRepository.save(student);
         return true;
     }
@@ -35,8 +37,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public StudentDto findStudent(Long id) {
         Student student = studentRepository.findById(id).orElseThrow(StudentNotFoundException::new);
-        StudentDto studentDto = new StudentDto(student.getId(), student.getName(), student.getScores());
-        return studentDto;
+        return modelMapper.map(student, StudentDto.class);
     }
 
     @Override
@@ -56,8 +57,7 @@ public class StudentServiceImpl implements StudentService {
             student.setPassword(studentUpdateDto.getPassword());
         }
         studentRepository.save(student);
-        StudentAddDto studentAddDto = new StudentAddDto(student.getId(), student.getName(), student.getPassword());
-        return studentAddDto;
+        return modelMapper.map(student, StudentAddDto.class);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<StudentDto> findStudentsByName(String name) {
         return studentRepository.findByNameIgnoreCase(name)
-                .map(s -> new StudentDto(s.getId(), s.getName(), s.getScores()))
+                .map(s -> modelMapper.map(s, StudentDto.class))
                 .toList();
     }
 
@@ -83,7 +83,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<StudentDto> findStudentsByExamMinScore(String exam, Integer minScore) {
         return studentRepository.findAllByExamMinScore(exam, minScore)
-                .map(s -> new StudentDto(s.getId(), s.getName(), s.getScores()))
+                .map(s -> modelMapper.map(s, StudentDto.class))
                 .toList();
     }
 }
