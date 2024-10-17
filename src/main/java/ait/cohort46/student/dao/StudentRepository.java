@@ -1,16 +1,21 @@
 package ait.cohort46.student.dao;
 
 import ait.cohort46.student.model.Student;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
-public interface StudentRepository {
-    Student save(Student student);
+public interface StudentRepository extends CrudRepository<Student, Long> {
+    Stream<Student> findByNameIgnoreCase(String name);
 
-    Optional<Student> findById(Long id);
+    Stream<Student> getAllBy();
 
-    void deleteById(Long id);
+    Long countStudentsByNameIn(Set<String> names);
 
-    Iterable<Student> findAll();
+    @Query("{'scores.?0': {$gte: ?1}}")
+    Stream<Student> findAllByExamMinScore(String exam, Integer minScore);
 }
